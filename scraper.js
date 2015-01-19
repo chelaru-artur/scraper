@@ -1,11 +1,16 @@
 var fs = require('fs');
+var args = require('system').args;
+
 var casper = require('casper').create({
 	pageSettings: {
 		loadImages: false, // The WebPage instance used by Casper will
-		loadPlugins: false // use these settings
+		loadPlugins: false, // use these settings		
 	}
 });
-var SEARCH = 'lavender oil'; //search query
+// var file = JSON(fs.readFile('link.json'));
+// console.log(file);
+// var search = file[0];
+// var index = file[1]; 
 var data = [];
 var nextPage = '';
 var t = new Date();
@@ -14,31 +19,28 @@ var next = './nextpage.txt';
 function getProductInfo() {
 	var data = {};
 	data.title = (document.getElementById('productTitle')) ? document.getElementById('productTitle').innerText : null;
-	data.price = (document.getElementById('priceblock_saleprice')) ? document.getElementById('priceblock_saleprice').innerText : null;
+	data.salePrice = (document.getElementById('priceblock_saleprice')) ? document.getElementById('priceblock_saleprice').innerText : null;
+	data.ourPrice = (document.getElementById('priceblock_ourprice')) ? document.getElementById('priceblock_ourprice').innerText : null;
 	data.availability = (document.getElementById('availability')) ? document.getElementById('availability').innerText : null;
 	data.feature_bullets = (document.getElementById('feature-bullets')) ? document.getElementById('feature-bullets').innerText : null;
 	data.description = (document.querySelector('.productDescriptionWrapper')) ? document.querySelector('.productDescriptionWrapper').innerText : null;
 	//get product details 
 	data.productDetails = {};
-	var details = document.getElementById('detail-bullets').querySelectorAll('.content li');
-	for (var i = 0; i < details.length; i++) {
-		var key = details[i].querySelector('b').innerText;
-		var val = details[i].innerText;
-		val = val.slice(key.length);
-		data.productDetails[key] = val;
+	var details = (document.getElementById('detail-bullets')) ? document.getElementById('detail-bullets').querySelectorAll('.content li') : null;
+	if (details !== null) {
+		for (var i = 0; i < details.length; i++) {
+			var key = details[i].querySelector('b').innerText;
+			var val = details[i].innerText;
+			val = val.slice(key.length);
+			data.productDetails[key] = val;
+		}
 	}
-
 	return data;
 }
-
+console.log(args[args.length - 1]);
 //open next_page url if exists
 if (!fs.exists(next)) {
-	casper.start('http://www.amazon.com/', function() {
-		casper.evaluate(function(search) {
-			document.getElementById('twotabsearchtextbox').value = search;
-		}, SEARCH);
-		this.click('.nav-submit-input');
-	});
+	casper.start(args[args.length - 1]);
 } else {
 	var url = fs.read(next);
 	casper.start(url);
@@ -58,6 +60,7 @@ casper.then(function() {
 			return e.getAttribute('href');
 		});
 	});
+
 	//open all products from page and get product data
 	casper.eachThen(links, function(link) {
 		this.thenOpen(link.data, function() {
@@ -89,9 +92,10 @@ casper.then(function() {
 	if (nextPage) {
 		fs.write(next, nextPage, 'w');
 		casper.exit(2);
-	}else{
-	console.log('Scraping finished')	
-	casper.exit(0);
-}
+	} else {
+		fs.remove(next);
+		console.log('Scraping finished')
+		casper.exit(0);
+	}
 });
 casper.run();
