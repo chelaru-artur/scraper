@@ -32,7 +32,7 @@
 
  	var s = (l) ? 'casperjs scraper.js' + ' ' + converted : 'casperjs scraper.js';
  	var scraper = childProcess.exec(s, function(error, stdout, stderr) {
- 		console.log(stdout);
+ 		//console.log(stdout);
  	});
 
  	scraper.stdout.on('data', function(buf) {
