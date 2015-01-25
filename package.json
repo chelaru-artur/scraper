@@ -1,0 +1,24 @@
+{
+  "name": "scraper",
+  "version": "1.0.0",
+  "description": "<h2>Scraper for amazon based on casper.js</h2> <ul> <li><strong> Install phantom.js</strong> sudo npm install -g phantomjs</li> <li><strong>Install casper.js</strong> npm install -g casperjs</li> <li> Change search query variable 'SEARCH' in scraper.js</li> <li>Run scraper: node app.js</li> </ul>",
+  "main": "app.js",
+  "dependencies": {
+    "async": "^0.9.0",
+    "mongo": "^0.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chelaru-artur/scraper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chelaru-artur/scraper/issues"
+  },
+  "homepage": "https://github.com/chelaru-artur/scraper"
+}
