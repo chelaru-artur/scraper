@@ -5,6 +5,7 @@
  var links = [];
 
  function addProduct(product) {
+
  	MongoClient.connect('mongodb://127.0.0.1:27017/AmazonScraper', function(err, db) {
  		if (err) throw err;
  		var collection = db.collection('cosmetics');
@@ -30,34 +31,56 @@
  		converted += l.charCodeAt(i).toString() + '_';
  	}
 
- 	var s = (l) ? 'casperjs scraper.js' + ' ' + converted : 'casperjs scraper.js';
- 	var scraper = childProcess.exec(s, function(error, stdout, stderr) {
- 		//console.log(stdout);
+ 	MongoClient.connect('mongodb://127.0.0.1:27017/AmazonScraper', function(err, db) {
+ 		if (err) throw err;
+ 		var collection = db.collection('cosmetics');
+
+ 		var s = (l) ? 'casperjs scraper.js' + ' ' + converted : 'casperjs scraper.js';
+ 		var scraper = childProcess.exec(s, function(error, stdout, stderr) {
+ 			//console.log(stdout);
+ 		});
+
+ 		scraper.stdout.on('data', function(buf) {
+ 			if (IsJsonString(buf)) {
+ 				collection.insert(JSON.parse(buf), function(err, docs) {
+ 					console.log('Added one product');
+
+ 				});
+ 			}
+ 		});
+
+ 		scraper.on('exit', function(code) {
+ 			console.log('Exit with code ', code);
+ 			db.close();
+ 			callback();
+ 		});
+
  	});
 
- 	scraper.stdout.on('data', function(buf) {
- 		if(IsJsonString(buf)){
- 			addProduct(JSON.parse(buf));
- 		}
- 	});
 
- 	scraper.on('exit', function(code) {
- 		console.log('Exit with code ', code);
- 		callback();
- 	});
+ }, 5);
 
- }, 10);
+ /*  Uncoment when you want to get all product page links
+  var child = childProcess.fork('./getLinks.js'); //first get links of all pages with list of products
+  child.on('exit', function() {
+  	var pages = fs.readdirSync('./pages');
+  	pages.forEach(function(f) {
+  		fs.readFile('./pages/' + f, 'utf8', function(err, data) {
+  			var data = JSON.parse(data);
+  			data.forEach(function(url) {
+  				q.push(url);
+  			});
+  		});
+  	});
+  });
+ */
 
-
- var child = childProcess.fork('./getLinks.js'); //first get links of all pages with list of products
- child.on('exit', function() {
- 	var pages = fs.readdirSync('./pages');
- 	pages.forEach(function(f) {
- 		fs.readFile('./pages/' + f, 'utf8', function(err, data) {
- 			var data = JSON.parse(data);
- 			data.forEach(function(url) {
- 				q.push(url);
- 			});
+ var pages = fs.readdirSync('./pages');
+ pages.forEach(function(f) {
+ 	fs.readFile('./pages/' + f, 'utf8', function(err, data) {
+ 		var data = JSON.parse(data);
+ 		data.forEach(function(url) {
+ 			q.push(url);
  		});
  	});
  });
