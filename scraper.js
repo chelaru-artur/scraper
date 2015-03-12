@@ -64,6 +64,12 @@ MongoClient.connect('mongodb://127.0.0.1:27017/AmazonScraper', function(err, db)
 							var rating = starDig.exec(document.querySelector('.crAvgStars').innerText);
 							data.rating = parseFloat(rating);
 						}
+
+
+						var type = document.querySelectorAll('#wayfinding-breadcrumbs_feature_div li');
+						type = type[type.length-1].innerText;
+						data.type = type; 	
+
 						data.availability = (document.getElementById('availability')) ? document.getElementById('availability').innerText : null;
 						data.feature_bullets = (document.getElementById('feature-bullets')) ? document.getElementById('feature-bullets').innerText : null;
 						data.description = (document.querySelector('.productDescriptionWrapper')) ? document.querySelector('.productDescriptionWrapper').innerText : null;
