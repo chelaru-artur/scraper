@@ -48,10 +48,22 @@ MongoClient.connect('mongodb://127.0.0.1:27017/AmazonScraper', function(err, db)
 			this.eachThen(links, function(link) {
 				this.thenOpen(link.data, function() {
 					var product = this.evaluate(function() {
+						//regex patterns
+						var currency = /[0-9]*\.?[0-9]+/g;
+						var starDig = /^[0-9]*\.?[0-9]+/g
 						var data = {};
 						data.title = (document.getElementById('productTitle')) ? document.getElementById('productTitle').innerText : null;
-						data.salePrice = (document.getElementById('priceblock_saleprice')) ? document.getElementById('priceblock_saleprice').innerText : null;
-						data.ourPrice = (document.getElementById('priceblock_ourprice')) ? document.getElementById('priceblock_ourprice').innerText : null;
+						var price;
+						if (document.getElementById('priceblock_saleprice')) {
+							price = document.getElementById('priceblock_saleprice').innerText;
+						} else {
+							price = document.getElementById('priceblock_ourprice').innerText;
+						}
+						data.price = parseInt(currency.exec(price));
+						if (document.querySelector('.crAvgStars')) {
+							var rating = starDig.exec(document.querySelector('.crAvgStars').innerText);
+							data.rating = parseFloat(rating);
+						}
 						data.availability = (document.getElementById('availability')) ? document.getElementById('availability').innerText : null;
 						data.feature_bullets = (document.getElementById('feature-bullets')) ? document.getElementById('feature-bullets').innerText : null;
 						data.description = (document.querySelector('.productDescriptionWrapper')) ? document.querySelector('.productDescriptionWrapper').innerText : null;
