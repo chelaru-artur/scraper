@@ -9,7 +9,7 @@ var casper = require('casper').create({
 casper.start('http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dbeauty&field-keywords=', function() {
 
 	var links = casper.evaluate(function(){
-           var e = document.querySelectorAll('.acs-category-tile-shopall');
+           var e = document.querySelectorAll('.acs-tiles-row ul a');
            var l = [];
            for(var i = 0 ; i < e.length;i++ ){
            	  var link = e[i].querySelector('a').href; 
